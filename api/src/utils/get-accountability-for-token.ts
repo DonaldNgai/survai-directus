@@ -27,7 +27,7 @@ export async function getAccountabilityForToken(
 	if (token) {
 		if (isDirectusJWT(token)) {
 			const payload = verifyAccessJWT(token, getSecret());
-			logger.info('Accountability payload:', payload);
+			logger.info('Accountability payload inside DirectusJWT:', payload.toString());
 
 			if ('session' in payload) {
 				await verifySessionJWT(payload);

@@ -70,7 +70,7 @@ export class AuthenticationService {
 		let userId;
 
 		try {
-			logger.info('Login attempt:', payload);
+			logger.info('Login attempt:', payload.toString());
 			userId = await provider.getUserID(cloneDeep(payload));
 		} catch (err) {
 			await stall(STALL_TIME, timeStart);
