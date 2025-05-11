@@ -22,7 +22,7 @@ export async function getAccountabilityForToken(
 	const database = getDatabase();
 	const logger = useLogger();
 
-	logger.info("Token:", token);
+	logger.info("Token:", token.toString());
 
 	if (token) {
 		if (isDirectusJWT(token)) {
@@ -55,6 +55,11 @@ export async function getAccountabilityForToken(
 				})
 				.first();
 
+			logger.info("In Else for Accountability");
+			logger.info('User:', user);
+			logger.info('User ID:', user.id);
+			logger.info('User ID:', user.role);
+
 			if (!user) {
 				throw new InvalidCredentialsError();
 			}
@@ -69,7 +74,7 @@ export async function getAccountabilityForToken(
 			accountability.app = app;
 		}
 
-		logger.info('Accountability:', accountability);
+		logger.info('Accountability User:', accountability.user);
 	}
 
 	return accountability;
