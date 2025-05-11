@@ -26,6 +26,7 @@ import { stall } from '../utils/stall.js';
 import { ActivityService } from './activity.js';
 import { SettingsService } from './settings.js';
 import { TFAService } from './tfa.js';
+import { useLogger } from '../logger/index.js';
 
 const env = useEnv();
 
@@ -64,10 +65,12 @@ export class AuthenticationService {
 		const timeStart = performance.now();
 
 		const provider = getAuthProvider(providerName);
+		const logger = useLogger();
 
 		let userId;
 
 		try {
+			logger.info('Login attempt:', payload);
 			userId = await provider.getUserID(cloneDeep(payload));
 		} catch (err) {
 			await stall(STALL_TIME, timeStart);
