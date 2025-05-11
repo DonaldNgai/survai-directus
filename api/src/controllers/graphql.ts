@@ -40,7 +40,7 @@ router.use(
 
 		const logger = useLogger();
 		logger.info('Executing GraphQL query:', res.locals['graphqlParams']);
-		logger.info('Accountability In GraphQL:', req.accountability.toString());
+		logger.info('Accountability In GraphQL:', req.accountability?.toString());
 
 		res.locals['payload'] = await service.execute(res.locals['graphqlParams']);
 
