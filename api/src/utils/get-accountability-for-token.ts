@@ -78,8 +78,7 @@ export async function getAccountabilityForToken(
 
 			logger.info("In Else for Accountability");
 			logger.info('User:', user);
-			logger.info('User ID:', user.id);
-			logger.info('User ID:', user.role);
+
 
 			if (!user) {
 				user = await tryExternalId(token);
@@ -88,6 +87,9 @@ export async function getAccountabilityForToken(
 					throw new InvalidCredentialsError();
 				}
 			}
+
+			logger.info('User ID:', user.id);
+			logger.info('User ID:', user.role);
 
 			accountability.user = user.id;
 			accountability.role = user.role;
