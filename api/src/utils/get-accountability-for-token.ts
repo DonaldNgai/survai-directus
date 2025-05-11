@@ -10,20 +10,35 @@ import { verifyAccessJWT } from './jwt.js';
 import { verifySessionJWT } from './verify-session-jwt.js';
 import { useLogger } from '../logger/index.js';
 import type { Knex } from 'knex';
+import jwt from 'jsonwebtoken';
 
 async function tryExternalId(token: string, database: Knex)  {
 	const logger = useLogger();
-	const jwt = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-	const identifier = jwt.sub ? String(jwt.sub) : null;
 
-	logger.info('JWT:', jwt);
+	let jwtPayload;
+
+    try {
+
+        jwtPayload = jwt.decode(token) as { sub?: string };
+
+	} catch (err) {
+		if (err instanceof Error) {
+			logger.error(`[OpenID] Failed to decode JWT: ${err.message}`);
+		} else {
+			logger.error(`[OpenID] Failed to decode JWT: Unknown error`);
+		}
+
+		throw new InvalidCredentialsError();
+	}
+
+	logger.info('JWT:', jwtPayload);
+
+	const identifier = jwtPayload?.sub ? String(jwtPayload.sub) : null;logger.info('Identifier:', identifier);
 
 	if (!identifier) {
 		logger.warn(`[OpenID] Failed to find user identifier"`);
 		throw new InvalidCredentialsError();
 	}
-
-	logger.info('Identifier:', identifier);
 
 	const user = await database
 		.select('directus_users.id', 'directus_users.role')
