@@ -445,7 +445,7 @@ export function createOpenIDAuthRouter(providerName: string): Router {
 			}
 
 			logger.info("Logging in callback")
-			logger.info('Token data:', tokenData);
+			logger.info('Token data in Callback:', tokenData.toString());
 
 			const { verifier, redirect, prompt } = tokenData;
 
