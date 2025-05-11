@@ -8,6 +8,7 @@ import { getSecret } from './get-secret.js';
 import isDirectusJWT from './is-directus-jwt.js';
 import { verifyAccessJWT } from './jwt.js';
 import { verifySessionJWT } from './verify-session-jwt.js';
+import { useLogger } from '../logger/index.js';
 
 export async function getAccountabilityForToken(
 	token?: string | null,
@@ -19,10 +20,14 @@ export async function getAccountabilityForToken(
 
 	// Try finding the user with the provided token
 	const database = getDatabase();
+	const logger = useLogger();
+
+	logger.info("Token:", token);
 
 	if (token) {
 		if (isDirectusJWT(token)) {
 			const payload = verifyAccessJWT(token, getSecret());
+			logger.info('Accountability payload:', payload);
 
 			if ('session' in payload) {
 				await verifySessionJWT(payload);
@@ -63,6 +68,8 @@ export async function getAccountabilityForToken(
 			accountability.admin = admin;
 			accountability.app = app;
 		}
+
+		logger.info('Accountability:', accountability);
 	}
 
 	return accountability;

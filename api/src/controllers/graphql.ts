@@ -3,6 +3,7 @@ import { parseGraphQL } from '../middleware/graphql.js';
 import { respond } from '../middleware/respond.js';
 import { GraphQLService } from '../services/graphql/index.js';
 import asyncHandler from '../utils/async-handler.js';
+import { useLogger } from '../logger/index.js';
 
 const router = Router();
 
@@ -36,6 +37,10 @@ router.use(
 			schema: req.schema,
 			scope: 'items',
 		});
+
+		const logger = useLogger();
+		logger.info('Executing GraphQL query:', res.locals['graphqlParams']);
+		logger.info('Accountability:', req.accountability);
 
 		res.locals['payload'] = await service.execute(res.locals['graphqlParams']);
 
