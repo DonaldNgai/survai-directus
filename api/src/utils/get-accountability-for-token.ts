@@ -22,7 +22,7 @@ export async function getAccountabilityForToken(
 	const database = getDatabase();
 	const logger = useLogger();
 
-	logger.info("Token:", token.toString());
+	logger.info("Token:", token?.toString());
 
 	if (token) {
 		if (isDirectusJWT(token)) {
