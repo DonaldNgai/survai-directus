@@ -9,8 +9,9 @@ import isDirectusJWT from './is-directus-jwt.js';
 import { verifyAccessJWT } from './jwt.js';
 import { verifySessionJWT } from './verify-session-jwt.js';
 import { useLogger } from '../logger/index.js';
+import type { Knex } from 'knex';
 
-async function tryExternalId(token: string){
+async function tryExternalId(token: string, database: Knex)  {
 	const logger = useLogger();
 	const jwt = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 	const identifier = jwt.sub ? String(jwt.sub) : null;
@@ -24,11 +25,19 @@ async function tryExternalId(token: string){
 
 	logger.info('Identifier:', identifier);
 
-	const userId = await this.fetchUserId(identifier);
+	const user = await database
+		.select('directus_users.id', 'directus_users.role')
+		.from('directus_users')
+		.where({
+			'directus_users.token': token,
+			status: 'active',
+		})
+				.first();
 
-	logger.info('User ID:', userId);
+	logger.info('User ID:', user);
+	logger.info('User ID:', user?.id);
 
-	return userId
+	return user
 }
 
 export async function getAccountabilityForToken(
@@ -81,7 +90,7 @@ export async function getAccountabilityForToken(
 
 
 			if (!user) {
-				user = await tryExternalId(token);
+				user = await tryExternalId(token, database);
 
 				if (!user) {
 					throw new InvalidCredentialsError();
