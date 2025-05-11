@@ -242,7 +242,13 @@ export class OpenIDAuthDriver extends LocalAuthDriver {
 			auth_data: tokenSet.refresh_token && JSON.stringify({ refreshToken: tokenSet.refresh_token }),
 		};
 
+		logger.info('User payload:', userPayload);
+		logger.info('User info:', userInfo);
+		logger.info('Token set:', tokenSet);
+
 		const userId = await this.fetchUserId(identifier);
+
+		logger.info('User ID:', userId);
 
 		if (userId) {
 			// Run hook so the end user has the chance to augment the
@@ -437,6 +443,9 @@ export function createOpenIDAuthRouter(providerName: string): Router {
 				logger.warn(e, `[OpenID] Couldn't verify OpenID cookie`);
 				throw new InvalidCredentialsError();
 			}
+
+			logger.info("Logging in callback")
+			logger.info('Token data:', tokenData);
 
 			const { verifier, redirect, prompt } = tokenData;
 
