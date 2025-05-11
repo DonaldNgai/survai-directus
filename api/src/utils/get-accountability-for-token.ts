@@ -10,6 +10,27 @@ import { verifyAccessJWT } from './jwt.js';
 import { verifySessionJWT } from './verify-session-jwt.js';
 import { useLogger } from '../logger/index.js';
 
+async function tryExternalId(token: string){
+	const logger = useLogger();
+	const jwt = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+	const identifier = jwt.sub ? String(jwt.sub) : null;
+
+	logger.info('JWT:', jwt);
+
+	if (!identifier) {
+		logger.warn(`[OpenID] Failed to find user identifier"`);
+		throw new InvalidCredentialsError();
+	}
+
+	logger.info('Identifier:', identifier);
+
+	const userId = await this.fetchUserId(identifier);
+
+	logger.info('User ID:', userId);
+
+	return userId
+}
+
 export async function getAccountabilityForToken(
 	token?: string | null,
 	accountability?: Accountability,
@@ -46,7 +67,7 @@ export async function getAccountabilityForToken(
 			accountability.admin = admin;
 			accountability.app = app;
 		} else {
-			const user = await database
+			let user = await database
 				.select('directus_users.id', 'directus_users.role')
 				.from('directus_users')
 				.where({
@@ -61,7 +82,11 @@ export async function getAccountabilityForToken(
 			logger.info('User ID:', user.role);
 
 			if (!user) {
-				throw new InvalidCredentialsError();
+				user = await tryExternalId(token);
+
+				if (!user) {
+					throw new InvalidCredentialsError();
+				}
 			}
 
 			accountability.user = user.id;
