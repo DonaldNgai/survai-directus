@@ -31,11 +31,9 @@ async function tryExternalId(token: string, database: Knex)  {
 		throw new InvalidCredentialsError();
 	}
 
-	logger.info(`JWT:${jwtPayload}`);
+	const identifier = jwtPayload?.sub ? String(jwtPayload.sub) : null;
 
-	const identifier = jwtPayload?.sub ? String(jwtPayload.sub) : null;logger.info('Identifier:', identifier);
-
-	logger.info(`Sub Identifier:${identifier}`);
+	logger.debug(`Sub Identifier:${identifier}`);
 
 	if (!identifier) {
 		logger.warn(`[OpenID] Failed to find user identifier"`);
@@ -48,8 +46,7 @@ async function tryExternalId(token: string, database: Knex)  {
 		.whereRaw('LOWER(??) = ?', ['external_identifier', identifier.toLowerCase()])
 		.first();
 
-	logger.info(`external id User ID: ${user}`);
-	logger.info(`external id User ID: ${user?.id}`);
+	logger.debug(`external id User ID: ${user}`);
 
 	return user
 }
@@ -66,12 +63,11 @@ export async function getAccountabilityForToken(
 	const database = getDatabase();
 	const logger = useLogger();
 
-	logger.info(`get Accountability Token JWT: ${token}`);
+	logger.debug(`get Accountability Token JWT: ${token}`);
 
 	if (token) {
 		if (isDirectusJWT(token)) {
 			const payload = verifyAccessJWT(token, getSecret());
-			logger.info(`Accountability payload inside DirectusJWT: ${JSON.stringify(payload)}`);
 
 			if ('session' in payload) {
 				await verifySessionJWT(payload);
@@ -99,8 +95,7 @@ export async function getAccountabilityForToken(
 				})
 				.first();
 
-			logger.info("In Else for Accountability");
-			logger.info(`User: ${JSON.stringify(user)}`);
+			logger.debug(`User By Token: ${JSON.stringify(user)}`);
 
 
 			if (!user) {
@@ -111,8 +106,8 @@ export async function getAccountabilityForToken(
 				}
 			}
 
-			logger.info(`User ID: ${user.id}`);
-			logger.info(`User Role: ${user.role}`);
+			logger.debug(`User ID: ${user.id}`);
+			logger.debug(`User Role: ${user.role}`);
 
 			accountability.user = user.id;
 			accountability.role = user.role;
@@ -123,8 +118,6 @@ export async function getAccountabilityForToken(
 			accountability.admin = admin;
 			accountability.app = app;
 		}
-
-		logger.info(`Accountability User: ${accountability.user}`);
 	}
 
 	return accountability;
