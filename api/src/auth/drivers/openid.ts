@@ -242,13 +242,13 @@ export class OpenIDAuthDriver extends LocalAuthDriver {
 			auth_data: tokenSet.refresh_token && JSON.stringify({ refreshToken: tokenSet.refresh_token }),
 		};
 
-		logger.info('User payload:', userPayload);
-		logger.info('User info:', userInfo);
-		logger.info('Token set:', tokenSet);
+		logger.info(`User payload: ${JSON.stringify(userPayload)}`);
+		logger.info(`User info: ${JSON.stringify(userInfo)}`);
+		logger.info(`Token set: ${JSON.stringify(tokenSet)}`);
 
 		const userId = await this.fetchUserId(identifier);
 
-		logger.info('User ID:', userId);
+		logger.info(`User ID: ${userId}`);
 
 		if (userId) {
 			// Run hook so the end user has the chance to augment the
@@ -445,7 +445,7 @@ export function createOpenIDAuthRouter(providerName: string): Router {
 			}
 
 			logger.info("Logging in callback")
-			logger.info('Token data in Callback:', tokenData.toString());
+			logger.info(`JWT:${JSON.stringify(tokenData)}`);
 
 			const { verifier, redirect, prompt } = tokenData;
 

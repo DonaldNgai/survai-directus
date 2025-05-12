@@ -31,7 +31,7 @@ async function tryExternalId(token: string, database: Knex)  {
 		throw new InvalidCredentialsError();
 	}
 
-	logger.info('JWT:', jwtPayload);
+	logger.info(`JWT:${jwtPayload}`);
 
 	const identifier = jwtPayload?.sub ? String(jwtPayload.sub) : null;logger.info('Identifier:', identifier);
 
@@ -49,8 +49,8 @@ async function tryExternalId(token: string, database: Knex)  {
 		})
 				.first();
 
-	logger.info('User ID:', user);
-	logger.info('User ID:', user?.id);
+	logger.info(`User ID: ${user}`);
+	logger.info(`User ID: ${user?.id}`);
 
 	return user
 }
@@ -67,12 +67,12 @@ export async function getAccountabilityForToken(
 	const database = getDatabase();
 	const logger = useLogger();
 
-	logger.info("Token:", token?.toString());
+	logger.info(`JWT: ${token}`);
 
 	if (token) {
 		if (isDirectusJWT(token)) {
 			const payload = verifyAccessJWT(token, getSecret());
-			logger.info('Accountability payload inside DirectusJWT:', payload.toString());
+			logger.info(`Accountability payload inside DirectusJWT: ${JSON.stringify(payload)}`);
 
 			if ('session' in payload) {
 				await verifySessionJWT(payload);
@@ -101,7 +101,7 @@ export async function getAccountabilityForToken(
 				.first();
 
 			logger.info("In Else for Accountability");
-			logger.info('User:', user);
+			logger.info(`User: ${JSON.stringify(user)}`);
 
 
 			if (!user) {
@@ -112,8 +112,8 @@ export async function getAccountabilityForToken(
 				}
 			}
 
-			logger.info('User ID:', user.id);
-			logger.info('User ID:', user.role);
+			logger.info(`User ID: ${user.id}`);
+			logger.info(`User Role: ${user.role}`);
 
 			accountability.user = user.id;
 			accountability.role = user.role;
@@ -125,7 +125,7 @@ export async function getAccountabilityForToken(
 			accountability.app = app;
 		}
 
-		logger.info('Accountability User:', accountability.user);
+		logger.info(`Accountability User: ${accountability.user}`);
 	}
 
 	return accountability;
