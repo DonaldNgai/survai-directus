@@ -43,13 +43,13 @@ async function tryExternalId(token: string, database: Knex)  {
 	}
 
 	const user = await database
-		.select('id')
+		.select('id', 'role')
 		.from('directus_users')
 		.whereRaw('LOWER(??) = ?', ['external_identifier', identifier.toLowerCase()])
 		.first();
 
-	logger.info(`User ID: ${user}`);
-	logger.info(`User ID: ${user?.id}`);
+	logger.info(`external id User ID: ${user}`);
+	logger.info(`external id User ID: ${user?.id}`);
 
 	return user
 }
