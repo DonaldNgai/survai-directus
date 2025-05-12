@@ -35,19 +35,18 @@ async function tryExternalId(token: string, database: Knex)  {
 
 	const identifier = jwtPayload?.sub ? String(jwtPayload.sub) : null;logger.info('Identifier:', identifier);
 
+	logger.info(`Sub Identifier:${identifier}`);
+
 	if (!identifier) {
 		logger.warn(`[OpenID] Failed to find user identifier"`);
 		throw new InvalidCredentialsError();
 	}
 
 	const user = await database
-		.select('directus_users.id', 'directus_users.role')
+		.select('id')
 		.from('directus_users')
-		.where({
-			'directus_users.token': token,
-			status: 'active',
-		})
-				.first();
+		.whereRaw('LOWER(??) = ?', ['external_identifier', identifier.toLowerCase()])
+		.first();
 
 	logger.info(`User ID: ${user}`);
 	logger.info(`User ID: ${user?.id}`);
@@ -67,7 +66,7 @@ export async function getAccountabilityForToken(
 	const database = getDatabase();
 	const logger = useLogger();
 
-	logger.info(`JWT: ${token}`);
+	logger.info(`get Accountability Token JWT: ${token}`);
 
 	if (token) {
 		if (isDirectusJWT(token)) {
